@@ -1,0 +1,37 @@
+# Exclude version control directories and files
+.git
+.gitignore
+
+# Exclude Python cache files
+__pycache__
+*.py[cod]
+
+# Exclude build and distribution directories
+build
+dist
+*.egg-info
+
+# Exclude test and coverage artifacts
+.tox
+.nox
+.coverage
+.coverage.*
+.cache
+.hypothesis
+
+# Exclude local virtual environments
+venv
+ENV
+env
+.venv
+
+# Exclude editor directories and settings
+.vscode
+.idea
+
+# Exclude documentation build outputs
+docs/_build
+
+# Exclude OS-specific files
+.DS_Store
+Thumbs.db
