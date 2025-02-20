@@ -1,0 +1,118 @@
+name: CI/CD
+
+on:
+  push:
+    branches:
+      - main
+    # Trigger on tags that start with "20" (i.e. a date-based tag like 2025.03.24)
+    tags:
+      - '20*'
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  lint:
+    name: Lint Code
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Setup Python 3.11
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.11
+
+      - name: Install Hatch Tools
+        run: pip install hatch hatchling hatch-vcs
+
+      - name: Create Hatch Environment
+        run: hatch env create
+
+      - name: Run Lint Checks
+        run: hatch run lint:all
+
+  test:
+    name: Run Tests (Matrix)
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.9, 3.10, 3.11, 3.12]
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Setup Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install Hatch Tools
+        run: pip install hatch hatchling hatch-vcs
+
+      - name: Create Hatch Environment
+        run: hatch env create
+
+      - name: Run Tests
+        run: hatch run test
+
+  coverage:
+    name: Coverage Report
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Setup Python 3.11
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.11
+
+      - name: Install Hatch Tools
+        run: pip install hatch hatchling hatch-vcs
+
+      - name: Create Hatch Environment
+        run: hatch env create
+
+      - name: Run Tests with Coverage
+        run: hatch run test-cov
+
+      - name: Generate Coverage Report
+        run: hatch run cov-report
+
+      - name: Upload Coverage Report
+        uses: actions/upload-artifact@v3
+        with:
+          name: coverage-report
+          path: coverage.xml  # adjust if your coverage report file name is different
+
+  build:
+    name: Build and Publish Package
+    runs-on: ubuntu-latest
+    # Run only for push events on tags matching the calver pattern (YYYY.MM.DD)
+    if: github.event_name == 'push' && github.ref =~ '^refs/tags/20[0-9]{2}\\.[0-9]{2}\\.[0-9]{2}$'
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Setup Python 3.11
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.11
+
+      - name: Install Hatch Tools
+        run: pip install hatch hatchling hatch-vcs
+
+      - name: Create Hatch Environment
+        run: hatch env create
+
+      - name: Build Package
+        run: hatch build
+
+      - name: Publish Package
+        # Publishes to PyPI when a valid calver tag is pushed.
+        run: hatch publish
+        env:
+          PYPI_USERNAME: ${{ secrets.PYPI_USERNAME }}
+          PYPI_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
