@@ -7,7 +7,6 @@
 	"customizations": {
 		"vscode": {
 			"settings": {
-				// Python settings
 				"python.analysis.autoImportCompletions": true,
 				"python.defaultInterpreterPath": "/usr/local/bin/python",
 				"python.linting.enabled": true,
@@ -25,11 +24,9 @@
 					"pymock"
 				],
 
-				// Format on save
 				"editor.formatOnSave": true,
 				"editor.defaultFormatter": "charliermarsh.ruff",
 
-				// Exclude temporary or generated files
 				"files.exclude": {
 					"**/__pycache__": true,
 					"**/.cache": true,
@@ -43,26 +40,24 @@
 					"**/.tox": true
 				},
 
-				// Editor font settings
 				"editor.fontFamily": "JetBrainsMono Nerd Font Propo",
 				"editor.fontLigatures": true,
 				"editor.fontSize": 14,
 
-				// Integrated terminal font settings
 				"terminal.integrated.fontFamily": "JetBrainsMono Nerd Font Propo"
 			},
 			"extensions": [
-				"ms-python.python",             // Core Python support
-				"ms-python.vscode-pylance",       // Enhanced Python language server
-				"ms-toolsai.jupyter",             // Notebook support
-				"charliermarsh.ruff",             // Ruff linting/formatting
-				"editorconfig.editorconfig",      // EditorConfig support
-				"ms-azuretools.vscode-docker",    // Docker support
-				"streetsidesoftware.code-spell-checker", // Spell checking
-				"bungcip.better-toml",            // TOML file support
-				"redhat.vscode-yaml",             // YAML file support
-				"ms-vscode.makefile-tools",       // Makefile support
-				"esbenp.prettier-vscode"          // JSON (and general) formatting
+				"ms-python.python",
+				"ms-python.vscode-pylance",
+				"ms-toolsai.jupyter",
+				"charliermarsh.ruff",
+				"editorconfig.editorconfig",
+				"ms-azuretools.vscode-docker",
+				"streetsidesoftware.code-spell-checker",
+				"bungcip.better-toml",
+				"redhat.vscode-yaml",
+				"ms-vscode.makefile-tools",
+				"esbenp.prettier-vscode"
 			]
 		}
 	},

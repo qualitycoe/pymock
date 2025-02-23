@@ -5,22 +5,20 @@ build-backend = "hatchling.build"
 [project]
 name = "pymock"
 dynamic = ["version"]
-description = ""
+description = "A versatile tool for [your description here]"
 readme = "README.md"
 requires-python = ">=3.8"
 license = "MIT"
-keywords = []
-authors = [
-  { name = "qualitycoe", email = "qualitycoe@outlook.com" },
-]
+authors = [{ name = "QualityCOE", email = "qualitycoe@outlook.com" }]
+keywords = ["tool", "automation", "python"]
 classifiers = [
   "Development Status :: 4 - Beta",
-  "Programming Language :: Python",
   "Programming Language :: Python :: 3.8",
   "Programming Language :: Python :: 3.9",
   "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
   "Programming Language :: Python :: Implementation :: CPython",
   "Programming Language :: Python :: Implementation :: PyPy",
 ]
@@ -32,6 +30,8 @@ dependencies = [
   "jsonschema",
   "jsonpath-ng",
   "pytest",
+  "types-PyYAML",
+  "Flask-Caching",
 ]
 
 [project.urls]
@@ -43,27 +43,30 @@ Changelog = "https://github.com/qualitycoe/pymock/blob/main/CHANGELOG.md"
 
 [tool.hatch.version]
 source = "vcs"
-fallback-version = "0.0.0"  # Use a default version when VCS data isn’t available
-version_scheme = "calver-by-date"
+fallback-version = "0.0.0"
+version-scheme = "calver-by-date"
 raw-options = { tag_regex = "^(?:[\\w-]+-)?[vV]?(?P<version>\\d+(?:\\.\\d+){0,2}[^\\+])(?:\\+.)?$", normalize = false }
 
-# ------------------------------------------------------------------------------
-# 1) MATRIX ENVIRONMENT
-#    Allows testing across multiple Python versions in CI or locally.
-#    Usage example: `hatch run all:test`
-# ------------------------------------------------------------------------------
+# --- Matrix Environment for CI ---
 [[tool.hatch.envs.all.matrix]]
 python = ["3.9", "3.10", "3.11", "3.12"]
 os = ["ubuntu-latest", "windows-latest", "macos-latest"]
 
-# ------------------------------------------------------------------------------
-# 2) DEFAULT/TEST ENVIRONMENT
-#    Installs coverage + pytest, plus convenient scripts to run tests and coverage.
-# ------------------------------------------------------------------------------
+# --- Default/Test Environment ---
 [tool.hatch.envs.default]
 dependencies = [
   "coverage[toml]>=6.5",
   "pytest",
+]
+extra-dependencies = [
+  "hvac",
+  "Flask",
+  "PyYAML",
+  "Jinja2",
+  "jsonschema",
+  "jsonpath-ng",
+  "types-PyYAML",
+  "Flask-Caching",
 ]
 
 [tool.hatch.envs.default.scripts]
@@ -78,70 +81,44 @@ cov = [
   "cov-report",
 ]
 
-# ------------------------------------------------------------------------------
-# 3) LINT ENVIRONMENT
-#    For style checks (Ruff & Black) and optional Mypy checks.
-# ------------------------------------------------------------------------------
+# --- Lint Environment ---
 [tool.hatch.envs.lint]
 detached = true
-skip_install = true
 dependencies = [
   "black>=23.1.0",
-  "mypy>=1.0.0",
   "ruff>=0.0.243",
+  "mypy>=1.0.0",
 ]
 
 [tool.hatch.envs.lint.scripts]
-typing = "mypy --install-types --non-interactive {args:src/pymock tests}"
 style = [
-  "ruff {args:.}",
+  "ruff check {args:.}",
   "black --check --diff {args:.}",
 ]
 fmt = [
   "black {args:.}",
-  "ruff --fix {args:.}",
+  "ruff check --fix {args:.}",
   "style",
 ]
+typing = "mypy --install-types --non-interactive {args:src/pymock tests}"
 all = [
   "style",
   "typing",
 ]
 
-# ------------------------------------------------------------------------------
-# 4) TYPES ENVIRONMENT (separate if you want advanced or isolated type checking)
-#    You already have this defined; included below with your existing settings.
-# ------------------------------------------------------------------------------
-[tool.hatch.envs.types]
-extra-dependencies = [
-  "mypy>=1.0.0",
-]
-[tool.hatch.envs.types.scripts]
-check = "mypy --install-types --non-interactive {args:src/pymock tests}"
-
-# ------------------------------------------------------------------------------
-# 5) DOCS ENVIRONMENT
-#    For building your documentation with Sphinx (common "pro dev" approach).
-#    Adjust packages/themes as needed.
-# ------------------------------------------------------------------------------
+# --- Docs Environment ---
 [tool.hatch.envs.docs]
-dependencies = [
-  "sphinx",
-  "sphinx-rtd-theme",
-  # optional: "myst-parser" for Markdown support
-]
-scripts = { build = "sphinx-build -b html docs docs/_build/html" }
+dependencies = ["sphinx", "sphinx-rtd-theme"]
 
-# ------------------------------------------------------------------------------
-# 6) COVERAGE CONFIGURATION
-#    (Already present in your pyproject; unchanged.)
-# ------------------------------------------------------------------------------
+[tool.hatch.envs.docs.scripts]
+build = "sphinx-build -b html docs docs/_build/html"
+
+# --- Coverage Configuration ---
 [tool.coverage.run]
 source_pkgs = ["pymock", "tests"]
 branch = true
 parallel = true
-omit = [
-  "src/pymock/__about__.py",
-]
+omit = ["src/pymock/__about__.py"]
 
 [tool.coverage.paths]
 pymock = ["src/pymock", "*/pymock/src/pymock"]
@@ -149,74 +126,33 @@ tests = ["tests", "*/pymock/tests"]
 
 [tool.coverage.report]
 fail_under = 90
-exclude_lines = [
-  "no cov",
-  "if __name__ == .__main__.:",
-  "if TYPE_CHECKING:",
-]
+exclude_lines = ["no cov", "if __name__ == .__main__.:", "if TYPE_CHECKING:"]
 
-# ------------------------------------------------------------------------------
-# 7) BLACK CONFIGURATION
-# ------------------------------------------------------------------------------
+# --- Black Configuration ---
 [tool.black]
 target-version = ["py311"]
 line-length = 120
 skip-string-normalization = true
 
-# ------------------------------------------------------------------------------
-# 8) RUFF CONFIGURATION
-#    Linting + import sorting (isort) + flake8-tidy-imports.
-# ------------------------------------------------------------------------------
+# --- Ruff Configuration ---
 [tool.ruff]
 target-version = "py311"
 line-length = 120
-select = [
-  "A",
-  "ARG",
-  "B",
-  "C",
-  "DTZ",
-  "E",
-  "EM",
-  "F",
-  "FBT",
-  "I",
-  "ICN",
-  "ISC",
-  "N",
-  "PLC",
-  "PLE",
-  "PLR",
-  "PLW",
-  "Q",
-  "RUF",
-  "S",
-  "T",
-  "TID",
-  "UP",
-  "W",
-  "YTT",
+lint.select = [
+  "A", "ARG", "B", "C", "DTZ", "E", "EM", "F", "FBT", "I", "ICN", "ISC",
+  "N", "PLC", "PLE", "PLR", "PLW", "Q", "RUF", "S", "T", "TID", "UP", "W", "YTT",
 ]
-ignore = [
-  # Allow non-abstract empty methods in ABCs
-  "B027",
-  # Allow boolean positional values
-  "FBT003",
-  # Ignore checks for possible passwords
-  "S105", "S106", "S107",
-  # Ignore complexity checks
-  "C901", "PLR0911", "PLR0912", "PLR0913", "PLR0915",
+lint.ignore = [
+  "B027", "FBT003", "S104", "S105", "S106", "S107", "C901",
+  "PLR0911", "PLR0912", "PLR0913", "PLR0915", "F401"
 ]
-unfixable = [
-  # Don't automatically remove unused imports
-  "F401",
-]
+lint.unfixable = ["F401"]
 
-[tool.ruff.isort]
+[tool.ruff.lint.isort]
 known-first-party = ["pymock"]
 
-[tool.ruff.flake8-tidy-imports]
+[tool.ruff.lint.flake8-tidy-imports]
 ban-relative-imports = "all"
 
-[tool.ruff.per-file-ignores]
+[tool.ruff.lint.per-file-ignores]
 "tests/**/*" = ["PLR2004", "S101", "TID252"]

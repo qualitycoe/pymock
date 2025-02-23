@@ -1,0 +1,41 @@
+# .pylintrc
+[MASTER]
+init-hook = import sys; sys.path.insert(0, "src")
+ignore = venv, build, dist, *.egg-info
+
+[MESSAGES CONTROL]
+disable =
+    missing-module-docstring,
+    missing-class-docstring,
+    missing-function-docstring,
+    too-few-public-methods,  # Common in small classes
+    too-many-arguments,      # Flexible for complex funcs
+    import-outside-toplevel, # For dynamic imports if needed
+    R0903                    # Too few public methods (duplicate code)
+enable =
+    useless-suppression      # Catch unused pylint: disable comments
+
+[REPORTS]
+reports = no
+output-format = colorized
+
+[TYPECHECK]
+ignored-modules = flask, jinja2, yaml, jsonschema, jsonpath_ng
+
+[FORMAT]
+max-line-length = 120
+
+[DESIGN]
+max-args = 10
+max-locals = 15
+max-branches = 12
+max-statements = 50
+
+[SIMILARITIES]
+min-similarity-lines = 4
+ignore-comments = yes
+ignore-docstrings = yes
+ignore-imports = yes
+
+[VARIABLES]
+additional-builtins = _

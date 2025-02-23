@@ -1,0 +1,8 @@
+server:
+  host: "127.0.0.1"
+  port: 5000
+
+# Define one or more directories containing endpoint definitions
+endpoints_path:
+  - "endpoints/"
+  - "custom_endpoints/"

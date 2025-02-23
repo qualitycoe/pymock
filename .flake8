@@ -1,0 +1,23 @@
+# .flake8
+[flake8]
+max-line-length = 120
+# Ignore Black compatibility and line length (handled by max-line-length)
+extend-ignore =
+    E203,
+    E501,
+    W503
+exclude =
+    .git,
+    __pycache__,
+    build,
+    dist,
+    *.egg-info,
+    venv,
+    docs/source/conf.py
+max-complexity = 10
+select =
+    E,
+    W,
+    F,
+    C,
+    N

@@ -5,9 +5,10 @@ SHELL := /usr/bin/env bash
 
 # Declare these as PHONY targets, so make doesn't look for real files named after these targets.
 .PHONY: all install lint fmt type test test-all cov coverage docs build publish clean \
-        git-status git-add git-commit git-push tag release
+        git-status git-add git-commit git-push tag release \
+        precommit-install precommit-run precommit-autoupdate
 
-# 1) Install/Setup: ensures Hatch environments exist
+# 1) Install/Setup: ensures Hatch environment(s) exist
 install:
 	hatch env create
 	hatch env show
@@ -82,3 +83,17 @@ tag:
 
 # Release: combine tagging, building, and publishing.
 release: tag build publish
+
+# --- Pre-commit Goals ---
+
+# precommit-install: Install the pre-commit hooks into your repository.
+precommit-install:
+	pre-commit install
+
+# precommit-run: Run all pre-commit hooks against all files.
+precommit-run:
+	pre-commit run --all-files
+
+# precommit-autoupdate: Update all pre-commit hook versions to the latest.
+precommit-autoupdate:
+	pre-commit autoupdate

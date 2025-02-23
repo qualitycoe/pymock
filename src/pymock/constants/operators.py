@@ -1,0 +1,53 @@
+# src/pymock/constants/operators.py
+
+TARGET_OPERATOR_MAP: dict[str, set[str]] = {
+    "body": {
+        "equals",
+        "regex",
+        "regex (case-insensitive)",
+        "null",
+        "empty array",
+        "array includes",
+        "valid JSON schema",
+    },
+    "params": {
+        "equals",
+        "regex",
+        "regex (case-insensitive)",
+        "null",
+        "empty array",
+        "array includes",
+        "valid JSON schema",
+    },
+    "headers": {
+        "equals",
+        "regex",
+        "regex (case-insensitive)",
+        "null",
+        "empty array",
+        "array includes",
+        "valid JSON schema",
+    },
+    "route_params": {"equals", "regex", "regex (case-insensitive)", "null", "valid JSON schema"},
+    "path": {"equals", "regex", "regex (case-insensitive)"},
+    "method": {"equals", "regex", "regex (case-insensitive)"},
+    "number": {"equals", "regex", "regex (case-insensitive)"},
+    "global_variable": {
+        "equals",
+        "regex",
+        "regex (case-insensitive)",
+        "null",
+        "empty array",
+        "array includes",
+        "valid JSON schema",
+    },
+    "data_bucket": {
+        "equals",
+        "regex",
+        "regex (case-insensitive)",
+        "null",
+        "empty array",
+        "array includes",
+        "valid JSON schema",
+    },
+}
