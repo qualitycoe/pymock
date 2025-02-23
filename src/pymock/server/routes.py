@@ -20,9 +20,9 @@ def create_endpoint_blueprint(endpoints_config: list[dict]) -> Blueprint:
     """
     mock_bp = Blueprint("mock_blueprint", __name__)
 
-    def _make_cache_key(*args, **kwargs) -> str:  # noqa: ARG001
+    def _make_cache_key(*args, **kwargs) -> str:  # noqa : ARG001
         """Generates a cache key based on request path and query parameters."""
-        # Ignore args/kwargs since they're not used here; rely on request context
+        # Ignore args/kwargs; use request context for consistency
         query_params = "&".join(f"{k}={v}" for k, v in sorted(request.args.items()))
         return f"{request.path}?{query_params}"
 
@@ -30,9 +30,12 @@ def create_endpoint_blueprint(endpoints_config: list[dict]) -> Blueprint:
         """Factory function to create cached route handlers."""
 
         @cache.cached(timeout=60, make_cache_key=_make_cache_key)
-        def route_handler() -> Response:
+        def route_handler(**kwargs) -> Response:  # noqa : ARG001
             """
             Handles requests, evaluates rules, and returns a response.
+
+            Args:
+                **kwargs: Route parameters (e.g., 'name' from '/greet/<name>').
 
             Returns:
                 Flask Response with rendered template or JSON data.
