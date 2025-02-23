@@ -41,6 +41,9 @@ Issues = "https://github.com/qualitycoe/pymock/issues"
 Source = "https://github.com/qualitycoe/pymock"
 Changelog = "https://github.com/qualitycoe/pymock/blob/main/CHANGELOG.md"
 
+[project.scripts]
+pymock = "pymock.cli:main"
+
 [tool.hatch.version]
 source = "vcs"
 fallback-version = "0.0.0"

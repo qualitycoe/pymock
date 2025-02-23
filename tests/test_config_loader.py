@@ -29,7 +29,7 @@ def temp_endpoint(tmp_path):
     return endpoint_file
 
 
-def test_get_config(temp_config):  # pylint: disable=redefined-outer-name
+def test_get_config(temp_config):
     """Test loading a valid config with endpoints."""
     config = get_config(temp_config)
     assert config["server"] == {"host": "localhost", "port": 8080}
@@ -43,7 +43,7 @@ def test_config_loader_invalid_file():
         ConfigLoader._load_config("nonexistent.yaml")  # pylint: disable=protected-access
 
 
-def test_env_overrides(temp_config, monkeypatch):  # pylint: disable=redefined-outer-name
+def test_env_overrides(temp_config, monkeypatch):
     """Test environment variable overrides."""
     monkeypatch.setenv("mytool__SERVER__HOST", "test.host")
     monkeypatch.setenv("mytool__SERVER__PORT", "9090")
@@ -52,7 +52,7 @@ def test_env_overrides(temp_config, monkeypatch):  # pylint: disable=redefined-o
     assert config["server"]["port"] == 9090
 
 
-def test_invalid_yaml(temp_config):  # pylint: disable=redefined-outer-name
+def test_invalid_yaml(temp_config):
     """Test loading invalid YAML."""
     with open(temp_config, "w", encoding="utf-8") as f:
         f.write("invalid: yaml: content")
@@ -60,20 +60,20 @@ def test_invalid_yaml(temp_config):  # pylint: disable=redefined-outer-name
         get_config(temp_config)
 
 
-def test_invalid_port_env(temp_config, monkeypatch):  # pylint: disable=redefined-outer-name
+def test_invalid_port_env(temp_config, monkeypatch):
     """Test invalid port environment variable."""
     monkeypatch.setenv("mytool__SERVER__PORT", "invalid")
     config = get_config(temp_config)
     assert config["server"]["port"] == 8080  # Should keep YAML value
 
 
-def test_empty_endpoints_dir(temp_config):  # pylint: disable=redefined-outer-name
+def test_empty_endpoints_dir(temp_config):
     """Test config with empty endpoints directory."""
     config = get_config(temp_config)
     assert config["endpoints"] == []  # No endpoints found
 
 
-def test_logging_invalid_yaml(temp_config):  # pylint: disable=redefined-outer-name
+def test_logging_invalid_yaml(temp_config):
     """Test logging of invalid YAML."""
     with open(temp_config, "w", encoding="utf-8") as f:
         f.write("invalid: yaml: content")
@@ -81,7 +81,7 @@ def test_logging_invalid_yaml(temp_config):  # pylint: disable=redefined-outer-n
         get_config(temp_config)
 
 
-def test_invalid_schema(temp_config):  # pylint: disable=redefined-outer-name
+def test_invalid_schema(temp_config):
     """Test invalid schema raises ConfigError."""
     with open(temp_config, "w", encoding="utf-8") as f:
         yaml.dump({"invalid_key": "value"}, f)

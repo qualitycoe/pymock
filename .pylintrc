@@ -12,6 +12,8 @@ disable =
     too-many-arguments,      # Flexible for complex funcs
     import-outside-toplevel, # For dynamic imports if needed
     R0903                    # Too few public methods (duplicate code)
+    redefined-outer-name
+    broad-exception-caught
 enable =
     useless-suppression      # Catch unused pylint: disable comments
 

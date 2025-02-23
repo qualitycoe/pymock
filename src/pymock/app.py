@@ -23,7 +23,7 @@ def create_app(endpoint_configs: list[dict[str, Any]]) -> Flask:
     Returns:
         Configured Flask application instance.
     """
-    app = Flask(__name__, template_folder="templates")  # pylint: disable=redefined-outer-name
+    app = Flask(__name__, template_folder="templates")
     init_cache(app)  # Ensure cache is initialized
     blueprint = create_endpoint_blueprint(endpoint_configs)
     app.register_blueprint(blueprint)
