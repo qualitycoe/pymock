@@ -59,7 +59,7 @@ def _match_condition(condition: dict, req: Request) -> bool:
 # Property extraction
 _EXTRACTORS = {
     "body": lambda req, prop: _resolve_property(req.get_json(), prop) if req.is_json else None,
-    "params": lambda req, prop: _resolve_property(req.args.getlist(prop) if prop else req.args, prop),
+    "params": lambda req, prop: _resolve_property(req.args.get(prop) if prop else req.args, prop),
     "headers": lambda req, prop: _resolve_property(req.headers, prop),
     "method": lambda req, _: req.method,
     "path": lambda req, _: req.path,
