@@ -52,7 +52,7 @@ raw-options = { tag_regex = "^(?:[\\w-]+-)?[vV]?(?P<version>\\d+(?:\\.\\d+){0,2}
 
 # --- Matrix Environment for CI ---
 [[tool.hatch.envs.all.matrix]]
-python = ["3.9", "3.10", "3.11", "3.12"]
+python = ["3.9", "3.10", "3.11", "3.12", "3.13"]
 os = ["ubuntu-latest", "windows-latest", "macos-latest"]
 
 # --- Default/Test Environment ---
