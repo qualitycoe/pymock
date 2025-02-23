@@ -1,4 +1,3 @@
-# src/pymock/server/routes.py
 from collections.abc import Callable
 
 from flask import Blueprint, Response, jsonify, make_response, request
@@ -20,10 +19,16 @@ def create_endpoint_blueprint(endpoints_config: list[dict]) -> Blueprint:
     """
     mock_bp = Blueprint("mock_blueprint", __name__)
 
+    def _make_cache_key() -> str:
+        """Generates a cache key based on request path and query parameters."""
+        # Include path and sorted query parameters to ensure consistent key
+        query_params = "&".join(f"{k}={v}" for k, v in sorted(request.args.items()))
+        return f"{request.path}?{query_params}"
+
     def _create_route_handler(rules: list[dict], template_name: str | None) -> Callable[[], Response]:
         """Factory function to create cached route handlers."""
 
-        @cache.cached(timeout=60)
+        @cache.cached(timeout=60, key=_make_cache_key)
         def route_handler() -> Response:
             """
             Handles requests, evaluates rules, and returns a response.
@@ -33,7 +38,6 @@ def create_endpoint_blueprint(endpoints_config: list[dict]) -> Blueprint:
             """
             matched_response = evaluate_rules(rules, request)
             if matched_response is None:
-                # Use jsonify directly with status code
                 return jsonify({"error": "No matching rule found"}), 404
 
             status_code = matched_response.get("status", 200)

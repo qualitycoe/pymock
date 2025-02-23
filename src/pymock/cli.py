@@ -8,16 +8,27 @@ from pymock.server.cache import cache
 from pymock.server.templates.handler import TemplateHandler
 
 
-def clear_all_caches() -> None:
-    """Clears all caches used by PyMock."""
-    # Clear Flask-Caching cache
-    if cache.cache is not None:  # Check if cache is initialized
+def clear_all_caches(app=None) -> None:
+    """
+    Clears all caches used by PyMock.
+
+    Args:
+        app: Optional Flask app instance; if provided, ensures cache is initialized.
+    """
+    # If app is provided and cache isn't initialized, bind it
+    if app is not None and cache.app is None:
+        cache.init_app(app)
+
+    # Clear Flask-Caching cache if initialized
+    if cache.app is not None and cache.cache is not None:
         cache.clear()
-        print("Flask-Caching cache cleared.")  # noqa : T201
+        print("Flask-Caching cache cleared.")  # noqa: T201
+    else:
+        print("Flask-Caching cache not initialized; skipping.")  # noqa: T201
 
     # Clear Jinja2 template cache
     TemplateHandler.clear_cache()
-    print("Jinja2 template cache cleared.")  # noqa : T201
+    print("Jinja2 template cache cleared.")  # noqa: T201
 
 
 def run_server(config_path: str, clear_cache: bool = False) -> None:  # noqa: FBT001, FBT002
@@ -28,9 +39,6 @@ def run_server(config_path: str, clear_cache: bool = False) -> None:  # noqa: FB
         config_path: Path to the YAML configuration file.
         clear_cache: If True, clears all caches before starting the server.
     """
-    if clear_cache:
-        clear_all_caches()
-
     config = get_config(config_path)
     endpoints_config = config.get("endpoints", [])
     server_config = config.get("server", {})
@@ -39,6 +47,10 @@ def run_server(config_path: str, clear_cache: bool = False) -> None:  # noqa: FB
     port = server_config.get("port", 5000)
 
     app = create_app(endpoints_config)
+
+    if clear_cache:
+        clear_all_caches(app)
+
     app.run(host=host, port=port, debug=True, threaded=True)
 
 
@@ -68,7 +80,7 @@ def main() -> None:
     try:
         run_server(args.config, clear_cache=args.clear_cache)
     except Exception as e:
-        print(f"Error: {e}", file=sys.stderr)  # noqa : T201
+        print(f"Error: {e}", file=sys.stderr)  # noqa: T201
         sys.exit(1)
 
 
