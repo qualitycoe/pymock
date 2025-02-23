@@ -2,6 +2,7 @@
 from pathlib import Path
 from typing import Any
 
+from flask import request
 from jinja2 import Environment, FileSystemLoader, TemplateNotFound
 
 from pymock.server.exceptions import TemplateError
@@ -51,7 +52,8 @@ class TemplateHandler:
         try:
             env = cls._get_env(templates_dir)
             template = env.get_template(template_name)
-            return template.render(**data)
+            template_data = {**data, "request": request}
+            return template.render(**template_data)
         except TemplateNotFound as e:
             msg = "Template '{}' not found in '{}'"
             raise TemplateError(msg.format(template_name, templates_dir)) from e
