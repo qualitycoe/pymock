@@ -214,7 +214,7 @@
 
   - `equals`
   - `regex`
-  - `regex (case-insensitive)`
+  - `regex(i)`
   - `null`
   - `empty array`
   - `array includes`

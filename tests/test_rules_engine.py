@@ -80,8 +80,8 @@ def test_apply_operator_regex_case_insensitive():
     from pymock.server.rules_engine import _compile_regex
 
     _compile_regex.cache_clear()  # Clear LRU cache to avoid stale results
-    assert _apply_operator("HELLO123", "regex (case-insensitive)", r"hello\d+") is True
-    assert _apply_operator("hello456", "regex (case-insensitive)", r"HELLO\d+") is True  # Adjusted to include digits
+    assert _apply_operator("HELLO123", "regex(i)", r"hello\d+") is True
+    assert _apply_operator("hello456", "regex(i)", r"HELLO\d+") is True  # Adjusted to include digits
 
 
 def test_apply_operator_null():

@@ -41,7 +41,6 @@ def _match_all_conditions(conditions: list[dict], req: Request) -> bool:
 
 
 def _match_condition(condition: dict, req: Request) -> bool:
-    """Evaluates a single condition with validation and inversion."""
     target = condition.get("target")
     operator = condition.get("operator")
     value = condition.get("value")
@@ -51,7 +50,12 @@ def _match_condition(condition: dict, req: Request) -> bool:
         logger.debug("Invalid condition: target=%s, operator=%s", target, operator)
         return False
 
-    actual_value = _extract_property(req, target, condition.get("property"))
+    # Special handling for array includes
+    if operator == "array includes" and target == "params":
+        actual_value = req.args.getlist(condition.get("property")) if condition.get("property") else []
+    else:
+        actual_value = _extract_property(req, target, condition.get("property"))
+
     result = _apply_operator(actual_value, operator, value)
     return not result if invert else result
 
@@ -59,12 +63,12 @@ def _match_condition(condition: dict, req: Request) -> bool:
 # Property extraction
 _EXTRACTORS = {
     "body": lambda req, prop: _resolve_property(req.get_json(), prop) if req.is_json else None,
-    "params": lambda req, prop: _resolve_property(req.args.get(prop) if prop else req.args, prop),
-    "headers": lambda req, prop: _resolve_property(req.headers, prop),
+    "params": lambda req, prop: req.args.get(prop) if prop else req.args,  # Single value for equals
+    "headers": lambda req, prop: req.headers.get(prop) if prop else req.headers,
     "method": lambda req, _: req.method,
     "path": lambda req, _: req.path,
     "route_params": lambda req, prop: req.view_args.get(prop) if req.view_args else None,
-    "cookies": lambda req, prop: _resolve_property(req.cookies, prop),
+    "cookies": lambda req, prop: req.cookies.get(prop) if prop else req.cookies,
     "global_variable": lambda _, __: None,
     "data_bucket": lambda _, __: None,
     "number": lambda req, prop: _parse_number(req.args.get(prop)),
@@ -123,14 +127,6 @@ def _apply_operator(actual_value: Any, operator: str, expected_value: Any) -> bo
     """Compares values using the specified operator."""
     op_func = _OPERATORS.get(operator, lambda _, __: False)
     result = op_func(actual_value, expected_value)
-    if operator == "regex (case-insensitive)":
-        pattern = _compile_regex(expected_value, case_insensitive=True)
-        msg = f"""Debug: actual={actual_value},
-        expected={expected_value},
-        pattern={pattern.pattern},
-        flags={pattern.flags},
-        result={result}"""
-        print(msg)  # noqa: T201
     return result
 
 
@@ -147,9 +143,7 @@ def _validate_json(instance: Any, schema: Any) -> bool:
 _OPERATORS = {
     "equals": lambda actual, expected: actual == expected,
     "regex": lambda actual, expected: bool(_compile_regex(expected).match(str(actual or ""))),
-    "regex (case-insensitive)": lambda actual, expected: bool(
-        _compile_regex(expected, case_insensitive=True).match(str(actual or ""))
-    ),
+    "regex(i)": lambda actual, expected: bool(_compile_regex(expected, case_insensitive=True).match(str(actual or ""))),
     "null": lambda actual, _: actual is None,
     "empty array": lambda actual, _: isinstance(actual, list) and not actual,
     "array includes": lambda actual, expected: isinstance(actual, list) and expected in actual,
