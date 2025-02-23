@@ -20,9 +20,8 @@ def create_endpoint_blueprint(endpoints_config: list[dict]) -> Blueprint:
     """
     mock_bp = Blueprint("mock_blueprint", __name__)
 
-    def _make_cache_key(*args, **kwargs) -> str:  # noqa : ARG001
+    def _make_cache_key(*args, **kwargs) -> str:
         """Generates a cache key based on request path and query parameters."""
-        # Ignore args/kwargs; use request context for consistency
         query_params = "&".join(f"{k}={v}" for k, v in sorted(request.args.items()))
         return f"{request.path}?{query_params}"
 
@@ -30,7 +29,7 @@ def create_endpoint_blueprint(endpoints_config: list[dict]) -> Blueprint:
         """Factory function to create cached route handlers."""
 
         @cache.cached(timeout=60, make_cache_key=_make_cache_key)
-        def route_handler(**kwargs) -> Response:  # noqa : ARG001
+        def route_handler(**kwargs) -> Response:
             """
             Handles requests, evaluates rules, and returns a response.
 
@@ -47,11 +46,11 @@ def create_endpoint_blueprint(endpoints_config: list[dict]) -> Blueprint:
             status_code = matched_response.get("status", 200)
             data = matched_response.get("data", {})
 
-            return (
-                make_response(render_template(template_name, data), status_code)
-                if template_name
-                else make_response(jsonify(data), status_code)
-            )
+            # If rendering a template, include route parameters in the template context
+            if template_name:
+                template_data = {**data, **kwargs}  # Merge rule data with route params
+                return make_response(render_template(template_name, template_data), status_code)
+            return make_response(jsonify(data), status_code)
 
         return route_handler
 
