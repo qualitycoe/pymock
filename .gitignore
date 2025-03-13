@@ -100,6 +100,8 @@ docs/_build/
 *.swp
 *.pot
 *.mo
-
+showinfo.py
+output.txt
+output.txt.bkp
 # Docker-related files (if not needed in repo)
 docker-compose.override.yml

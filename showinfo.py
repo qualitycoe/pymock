@@ -76,6 +76,11 @@ def main():
         "showinfo.py",
         "output.txt",
         "output2.txt",
+        "bkp.rules_engine.py",
+        "__pycache__",
+        ".coverage",
+        ".DS_Store",
+        ".pytest_cache",
     ]  # list of file/folder names to ignore
 
     # Generate the directory structure.

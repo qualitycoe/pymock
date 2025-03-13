@@ -4,31 +4,6 @@ import sys
 
 from pymock.app import create_app
 from pymock.config.loader import get_config
-from pymock.server.cache import cache
-from pymock.server.templates.handler import TemplateHandler
-
-
-def clear_all_caches(app=None) -> None:
-    """
-    Clears all caches used by PyMock.
-
-    Args:
-        app: Optional Flask app instance; if provided, ensures cache is initialized.
-    """
-    # If app is provided and cache isn't initialized, bind it
-    if app is not None and cache.app is None:
-        cache.init_app(app)
-
-    # Clear Flask-Caching cache if initialized
-    if cache.app is not None and cache.cache is not None:
-        cache.clear()
-        print("Flask-Caching cache cleared.")  # noqa: T201
-    else:
-        print("Flask-Caching cache not initialized; skipping.")  # noqa: T201
-
-    # Clear Jinja2 template cache
-    TemplateHandler.clear_cache()
-    print("Jinja2 template cache cleared.")  # noqa: T201
 
 
 def run_server(config_path: str, clear_cache: bool = False) -> None:  # noqa: FBT001, FBT002
@@ -47,9 +22,6 @@ def run_server(config_path: str, clear_cache: bool = False) -> None:  # noqa: FB
     port = server_config.get("port", 5000)
 
     app = create_app(endpoints_config)
-
-    if clear_cache:
-        clear_all_caches(app)
 
     app.run(host=host, port=port, debug=True, threaded=True)
 

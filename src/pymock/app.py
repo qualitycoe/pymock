@@ -6,7 +6,7 @@ from flask import Flask
 from pymock.config.loader import get_config
 from pymock.logging_config import setup_logging
 from pymock.server.cache import init_cache
-from pymock.server.routes import create_endpoint_blueprint
+from pymock.server.create_endpoint_blueprint import create_endpoint_blueprint
 
 MAX_PORT_NUMBER = 65535  # Maximum valid TCP/UDP port number
 
