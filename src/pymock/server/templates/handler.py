@@ -1,7 +1,7 @@
 # src/pymock/server/templates/handler.py
-from jinja2 import Environment, FileSystemLoader
+from jinja2 import Environment, FileSystemLoader, TemplateNotFound
 
-from pymock.server.exceptions import TemplateError
+from pymock.server.exceptions import TemplateError, TemplateNotFoundError
 
 
 class TemplateHandler:
@@ -16,12 +16,14 @@ class TemplateHandler:
         return cls._env
 
     @classmethod
-    def render(cls, template_name: str, data: dict, templates_dir="templates") -> str:
+    def render(cls, template_name: str, data: dict, templates_dir="templates", *, autoescape=True) -> str:
         try:
-            env = cls._get_env(templates_dir)
+            env = Environment(loader=FileSystemLoader(templates_dir), autoescape=autoescape)  # noqa: S701
             template = env.get_template(template_name)
             return template.render(**data)
+        except TemplateNotFound as e:
+            msg = f"Failed to render template '{template_name}': {e}"
+            raise TemplateNotFoundError(msg) from e
         except Exception as e:
-            # B904 + EM102 fix: assign error message before raising
             msg = f"Failed to render template '{template_name}': {e}"
             raise TemplateError(msg) from e

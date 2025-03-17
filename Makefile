@@ -3,6 +3,10 @@
 # Use bash so we can rely on certain bash features if needed
 SHELL := /usr/bin/env bash
 
+# Variables
+DOCKER_IMAGE = pymock-test
+DOCKER = docker
+
 # Declare these as PHONY targets, so make doesn't look for real files named after these targets.
 .PHONY: all install lint fmt type test test-all cov coverage docs build publish clean \
         git-status git-add git-commit git-push tag release \
@@ -97,3 +101,15 @@ precommit-run:
 # precommit-autoupdate: Update all pre-commit hook versions to the latest.
 precommit-autoupdate:
 	pre-commit autoupdate
+
+# Build Docker image
+dcb:
+	$(DOCKER) build -t $(DOCKER_IMAGE) .
+
+# Run tests in Docker
+dct: dcb
+	$(DOCKER) run --rm $(DOCKER_IMAGE)
+
+# Clean up Docker image (optional)
+dcc:
+	$(DOCKER) rmi $(DOCKER_IMAGE) || true

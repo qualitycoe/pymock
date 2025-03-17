@@ -45,6 +45,9 @@ Changelog = "https://github.com/qualitycoe/pymock/blob/main/CHANGELOG.md"
 [project.scripts]
 pymock = "pymock.cli:main"
 
+[tool.hatch.metadata]
+allow-direct-references= true
+
 [tool.hatch.version]
 source = "vcs"
 fallback-version = "0.0.0"
@@ -61,6 +64,7 @@ os = ["ubuntu-latest", "windows-latest", "macos-latest"]
 dependencies = [
   "coverage[toml]>=6.5",
   "pytest",
+  "ruleenginex @ git+https://github.com/qualitycoe/ruleenginex.git@main#egg=ruleenginex",
 ]
 extra-dependencies = [
   "hvac",
@@ -116,6 +120,9 @@ dependencies = ["sphinx", "sphinx-rtd-theme"]
 
 [tool.hatch.envs.docs.scripts]
 build = "sphinx-build -b html docs docs/_build/html"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/pymock"]
 
 # --- Coverage Configuration ---
 [tool.coverage.run]

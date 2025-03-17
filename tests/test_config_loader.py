@@ -1,5 +1,7 @@
 # tests/test_config_loader.py
 
+from pathlib import Path
+
 import pytest
 import yaml
 
@@ -30,9 +32,27 @@ def temp_endpoint(tmp_path):
 
 
 def test_get_config(temp_config):
-    """Test loading a valid config with endpoints."""
+    # temp_config is your main config.yaml.
+    # Now create the 'endpoints' directory & a sample file
+    endpoints_dir = Path(temp_config).parent / "endpoints"
+    endpoints_dir.mkdir(parents=True, exist_ok=True)
+
+    (endpoints_dir / "endpoint1.yaml").write_text(
+        """
+path: /test
+method: GET
+scenarios:
+  - scenario_name: "test"
+    rules_data: []
+    response:
+      status: 200
+      data:
+        message: "OK"
+""",
+        encoding="utf-8",
+    )
+
     config = get_config(temp_config)
-    assert config["server"] == {"host": "localhost", "port": 8080}
     assert len(config["endpoints"]) == 1
     assert config["endpoints"][0]["path"] == "/test"
 

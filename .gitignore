@@ -103,5 +103,6 @@ docs/_build/
 showinfo.py
 output.txt
 output.txt.bkp
+execution_log.txt
 # Docker-related files (if not needed in repo)
 docker-compose.override.yml
