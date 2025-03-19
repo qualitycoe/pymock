@@ -10,7 +10,7 @@ class Request:
         self.url = request.url
         self.path = request.path
         self.headers = dict(request.headers)
-        self.query_params = dict(request.args)
+        self.params = dict(request.args)
         self.body = self._get_body()
         self.cookies = dict(request.cookies)
         self.remote_addr = request.remote_addr
@@ -31,7 +31,7 @@ class Request:
             "url": self.url,
             "path": self.path,
             "headers": self.headers,
-            "query_params": self.query_params,
+            "params": self.params,
             "body": self.body,
             "cookies": self.cookies,
             "remote_addr": self.remote_addr,
