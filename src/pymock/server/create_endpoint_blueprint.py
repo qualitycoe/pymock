@@ -7,7 +7,6 @@ from flask import Blueprint, Response, jsonify, make_response, request
 from jinja2 import Environment
 from ruleenginex.scenario import Scenario
 
-from pymock.server.cache import cache
 from pymock.server.request import Request
 from pymock.server.templates.handler import TemplateHandler
 
@@ -26,11 +25,6 @@ def create_endpoint_blueprint(endpoints_config: list[dict]) -> Blueprint:
 
     mock_bp = Blueprint("mock_blueprint", __name__)
     jinja_env = Environment(autoescape=True)  # For inline `{{}}` expressions
-
-    def _make_cache_key(*args, **kwargs) -> str:
-        """Generate cache key based on request path & query params."""
-        params = "&".join(f"{k}={v}" for k, v in sorted(request.args.items()))
-        return f"{request.path}?{params}"
 
     def _render_data(data: dict) -> dict:
         """
@@ -65,7 +59,6 @@ def create_endpoint_blueprint(endpoints_config: list[dict]) -> Blueprint:
           4. Returns JSON or rendered template response.
         """
 
-        @cache.cached(timeout=60, make_cache_key=_make_cache_key)
         def route_handler(**kwargs) -> Response:
             request_obj = Request()
             request_data = request_obj.to_dict()

@@ -4,7 +4,6 @@ from typing import Any
 from flask import Flask
 
 from pymock.config.loader import get_config
-from pymock.server.cache import init_cache
 from pymock.server.create_endpoint_blueprint import create_endpoint_blueprint
 
 MAX_PORT_NUMBER = 65535  # Maximum valid TCP/UDP port number
@@ -21,7 +20,6 @@ def create_app(endpoint_configs: list[dict[str, Any]]) -> Flask:
         Configured Flask application instance.
     """
     app = Flask(__name__, template_folder="templates")
-    init_cache(app)  # Ensure cache is initialized
     blueprint = create_endpoint_blueprint(endpoint_configs)
     app.register_blueprint(blueprint)
     return app
