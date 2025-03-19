@@ -12,7 +12,7 @@ def client():
             "scenarios": [
                 {
                     "scenario_name": "name is John",
-                    "rules_data": [
+                    "rules": [
                         {
                             "target": "body",
                             "prop": "$.name",
@@ -27,7 +27,7 @@ def client():
                 },
                 {
                     "scenario_name": "fallback",
-                    "rules_data": [],
+                    "rules": [],
                     "response": {
                         "status": 400,
                         "data": {"error": "Not John"},

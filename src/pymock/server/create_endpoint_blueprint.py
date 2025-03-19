@@ -98,7 +98,7 @@ def create_endpoint_blueprint(endpoints_config: list[dict]) -> Blueprint:
         scenario_list = [
             Scenario(
                 scenario_name=sc.get("scenario_name", "Unnamed"),
-                rules_data=sc.get("rules_data", []),
+                rules=sc.get("rules", []),
                 response=sc.get("response", {}),
             )
             for sc in scenario_configs

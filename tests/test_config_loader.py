@@ -43,7 +43,7 @@ path: /test
 method: GET
 scenarios:
   - scenario_name: "test"
-    rules_data: []
+    rules: []
     response:
       status: 200
       data:

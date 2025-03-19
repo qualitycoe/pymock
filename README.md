@@ -110,7 +110,7 @@ path: "/users"
 method: "GET"
 scenarios:
   - scenario_name: "Fetch Admin Users"
-    rules_data:
+    rules:
       - target: "query_params"
         prop: "admin"
         op: "EQUALS"
@@ -128,14 +128,14 @@ scenarios:
 - **`method`**: The HTTP method (e.g., `GET`, `POST`).
 - **`scenarios`**: A list of scenario objects, each containing:
   - **`scenario_name`**: A readable name or identifier.
-  - **`rules_data`**: Conditions for matching this scenario. *(More below.)*
+  - **`rules`**: Conditions for matching this scenario. *(More below.)*
   - **`response`**: What to return when the scenario matches. May include `status`, `data`, `headers`, or a `template`.
 
 > **Note**: If multiple scenarios match, **PyMock** returns the first matching scenario’s response.
 
 ### 3️⃣ Scenarios & Rule Logic
 
-Each scenario’s `rules_data` is a **list of rules** that all must be satisfied for that scenario to match. A **rule** is defined by four main fields:
+Each scenario’s `rules` is a **list of rules** that all must be satisfied for that scenario to match. A **rule** is defined by four main fields:
 
 - **`target`**: The part of the request you’re matching (e.g. `"body"`, `"headers"`, `"query_params"`, `"path"`, `"method"`).
 - **`prop`**: The property (or JSONPath) within that target. Examples:
@@ -166,7 +166,7 @@ path: "/hello"
 method: "GET"
 scenarios:
   - scenario_name: "Greeting"
-    rules_data: []
+    rules: []
     response:
       status: 200
       template: "greeting.html"
@@ -269,7 +269,7 @@ Suppose you need a quick mock for an external service:
     method: "GET"
     scenarios:
       - scenario_name: "All Data"
-        rules_data: []
+        rules: []
         response:
           status: 200
           data:
@@ -300,7 +300,7 @@ path: "/api/v1/items"
 method: "GET"
 scenarios:
   - scenario_name: "Has Query Param"
-    rules_data:
+    rules:
       - target: "query_params"
         prop: "type"
         op: "EQUALS"
@@ -311,7 +311,7 @@ scenarios:
         message: "Found special items!"
 
   - scenario_name: "Default"
-    rules_data: []
+    rules: []
     response:
       status: 404
       data:
