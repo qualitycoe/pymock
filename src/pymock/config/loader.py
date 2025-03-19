@@ -95,12 +95,25 @@ class ConfigLoader:
             except ValueError:
                 logger.warning("Invalid port value '%s' from env, ignoring", env_port)
 
-        if env_debug := os.environ.get("PYMOCK__DEBUG"):
-            # Convert string to bool
-            config["debug"] = env_debug.lower() == "true"
-
         if env_paths := os.environ.get("PYMOCK__SERVER__ENDPOINTS_PATH"):
             config["endpoints_path"] = [p.strip() for p in env_paths.split(",")]
+
+        if env_log_level := os.environ.get("PYMOCK__LOG_LEVEL"):
+            config.setdefault("logging", {})
+            config["logging"]["level"] = env_log_level.upper()
+
+        # 2) Override the log file path, if set
+        if env_log_file := os.environ.get("PYMOCK__LOG_FILE"):
+            config.setdefault("logging", {})
+            config["logging"]["file"] = env_log_file
+
+        # 3) If you have a global debug toggle
+        if env_debug := os.environ.get("PYMOCK__DEBUG"):
+            config["debug"] = env_debug.lower() == "true"
+            # You could also automatically set logging.level=DEBUG if debug=true:
+            if config["debug"]:
+                config.setdefault("logging", {})
+                config["logging"]["level"] = "DEBUG"
 
         return config
 

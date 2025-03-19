@@ -9,17 +9,19 @@ from pymock.logging_config import setup_logging
 
 def run_server(config_path: str) -> None:
     config = get_config(config_path)
-    debug_mode = config.get("debug", False)  # <-- read the 'debug' key
-    setup_logging(debug=debug_mode)
+    logging_conf = config.get("logging", {})
+    setup_logging(logging_conf)
 
-    endpoints_config = config.get("endpoints", [])
-    server_config = config.get("server", {})
-
-    host = server_config.get("host", "127.0.0.1")
-    port = server_config.get("port", 5000)
+    server_conf = config["server"]
+    endpoints_config = config["endpoints"]
 
     app = create_app(endpoints_config)
-    app.run(host=host, port=port, debug=debug_mode, threaded=True)
+    app.run(
+        host=server_conf.get("host", "0.0.0.0"),
+        port=server_conf.get("port", 8085),
+        debug=config.get("debug", False),
+        threaded=True,
+    )
 
 
 def main() -> None:
