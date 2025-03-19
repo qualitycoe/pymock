@@ -31,7 +31,6 @@ dependencies = [
   "jsonpath-ng",
   "pytest",
   "types-PyYAML",
-  "Flask-Caching",
   "ruleenginex @ git+https://github.com/qualitycoe/ruleenginex.git@main#egg=ruleenginex",
 ]
 
@@ -74,7 +73,6 @@ extra-dependencies = [
   "jsonschema",
   "jsonpath-ng",
   "types-PyYAML",
-  "Flask-Caching",
 ]
 
 [tool.hatch.envs.default.scripts]
