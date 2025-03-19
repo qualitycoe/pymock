@@ -42,4 +42,4 @@ if __name__ == "__main__":
         raise ValueError(error_msg)
 
     app = create_app(endpoints_config)
-    app.run(host=host, port=port, debug=True, threaded=True)
+    app.run(host=host, port=port, debug=False, threaded=True)
