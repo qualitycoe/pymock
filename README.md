@@ -1,284 +1,336 @@
-# pymock
+# PyMock
 
 [![PyPI - Version](https://img.shields.io/pypi/v/pymock.svg)](https://pypi.org/project/pymock)
 [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/pymock.svg)](https://pypi.org/project/pymock)
+![PyMock](https://img.shields.io/badge/version-1.0.0-blue.svg)
+![License](https://img.shields.io/badge/license-MIT-green.svg)
+![Build](https://img.shields.io/github/actions/workflow/status/qualitycoe/pymock/ci.yml)
 
 -----
 
-  # pymock
+## 📖 Table of Contents
 
-  **pymock** is a lightweight mock server built using **Flask**. It allows you to configure endpoints, request rules, and dynamic responses all via YAML files. This makes it easy to prototype or test API behaviors without writing additional code.
+- [Introduction](#introduction)
+- [Features](#features)
+- [Installation](#installation)
+- [Quick Start](#quick-start)
+  - [Running via CLI](#running-via-cli)
+  - [Defining Endpoints](#defining-endpoints)
+  - [Scenarios \& Rule Logic](#scenarios--rule-logic)
+  - [Jinja2 Templates](#jinja2-templates)
+- [Configuration](#configuration)
+  - [Environment Variable Overrides](#environment-variable-overrides)
+- [Advanced Usage](#advanced-usage)
+  - [Caching](#caching)
+  - [Docker Support](#docker-support)
+- [Usage Examples](#usage-examples)
+  - [Mocking an API](#mocking-an-api)
+  - [Conditional Responses with Rules](#conditional-responses-with-rules)
+- [License](#license)
+- [Contact](#contact)
 
-  ## Table of Contents
+---
 
-  1. [Features](#features)
-  2. [Requirements](#requirements)
-  3. [Installation](#installation)
-  4. [Configuration](#configuration)
-     - [Config File](#config-file)
-     - [Environment Variable Overrides](#environment-variable-overrides)
-     - [Endpoints Definition](#endpoints-definition)
-  5. [Usage](#usage)
-     - [Running the Server](#running-the-server)
-     - [Example Usage](#example-usage)
-  6. [Rules Engine](#rules-engine)
-     - [Targets](#targets)
-     - [Operators](#operators)
-  7. [Templates](#templates)
-  8. [Caching](#caching)
-  9. [Contributing](#contributing)
-  10. [License](#license)
+## 🚀 Introduction
 
-  ---
+**PyMock** is a **versatile Flask-based mock server** that lets you define endpoints, behavior, and conditional responses with minimal effort. It’s designed to help you:
 
-  ## 1. Features
+1. **Stand up quick mock APIs** for prototyping or testing.
+2. **Validate incoming requests** with rule-based logic.
+3. **Dynamically generate responses**, including template rendering via Jinja2.
 
-  - **Rule-based request matching**: Configure rules that inspect request body, headers, params, method, and more.
-  - **Powerful condition logic**: Use JSON Path, regex matching, schema validation, array checks, etc.
-  - **Flexible response**: Return either a Jinja2-rendered template or JSON data.
-  - **Easy configuration**: Store all behavior in YAML files (including environment-based overrides).
-  - **Multiple endpoint directories**: Scan multiple folders for YAML endpoint definitions.
-  - **Dynamic path parameters**: Routes can contain `<variable>` parts accessible to your rules.
+Under the hood, PyMock uses **RuleEngineX** to evaluate incoming requests. However, **PyMock** is fully self-contained: you don’t need prior RuleEngineX knowledge to define your endpoints and rules. Everything is configured through **YAML** files.
 
-  ---
+---
 
-  ## 2. Requirements
+## 🔥 Features
 
-  - **Python 3.7+**
-  - **Flask**
-  - **PyYAML**
-  - **jsonschema** (for JSON schema validation)
-  - **jsonpath-ng** (for JSON path extraction)
+✔ **Easy Endpoint Definition**: Write YAML files to define routes and HTTP methods.
+✔ **Rule-Based Matching**: Condition your responses on request data (headers, query params, body, etc.).
+✔ **Jinja2 Templating**: Render custom text, HTML, or JSON with dynamic data.
+✔ **Caching**: Speed up repeated responses with in-memory caching.
+✔ **Docker Support**: Simple Dockerfile provided for containerizing your mock server.
+✔ **Configurable**: Set server host, port, and endpoint directories in a single YAML or via environment variables.
+✔ **Lightweight & Extensible**: Built on Flask and easily extended or integrated into broader testing pipelines.
 
-  > These dependencies can be installed automatically via `requirements.txt` or manually.
+---
 
-  ---
+## 📦 Installation
 
-  ## 3. Installation
+### From Source or Git
 
-  1. **Clone** this repository (or copy the code into your own project):
-      ```bash
-      git clone https://github.com/<username>/pymock.git
-      cd pymock
-      ```
-  2. **Create and activate** a virtual environment (recommended):
-      ```bash
-      python -m venv venv
-      source venv/bin/activate   # Linux/macOS
-      # or venv\Scripts\activate # Windows
-      ```
-  3. **Install dependencies**:
-      ```bash
-      pip install -r requirements.txt
-      ```
+```bash
+git clone https://github.com/qualitycoe/pymock.git
+cd pymock
+pip install .
+```
 
-  ---
+Or in your own `requirements.txt`:
 
-  ## 4. Configuration
+```
+pymock @ git+https://github.com/qualitycoe/pymock.git@main#egg=pymock
+```
 
-  ### 4.1 Config File
+> *(PyPI publishing is planned. If available, simply `pip install pymock`.)*
 
-  The main configuration is controlled by `config.yaml` at the root (or specify the path in the code). Here is an example:
+### Development with Hatch
 
-  ```yaml
-  server:
-    host: "127.0.0.1"
-    port: 5000
+If you wish to develop or contribute:
 
-  # Define one or more directories containing endpoint definitions
-  endpoints_path:
-    - "endpoints/"
-    - "custom_endpoints/"
-  ```
+```bash
+# 1) Ensure Hatch is installed: pip install hatch
+# 2) Create a local environment and install dev dependencies
+hatch env create
+# 3) Run tests
+hatch run test
+```
 
-  - **server**:
-    - `host`: IP address or hostname to bind to (default: `"127.0.0.1"`).
-    - `port`: Port number to run on (default: `5000`).
-  - **endpoints_path**: One or more directory paths (strings) where the server will recursively scan for YAML files defining endpoints.
+---
 
-  ### 4.2 Environment Variable Overrides
+## 🚀 Quick Start
 
-  You can override specific settings in `config.yaml` by providing environment variables:
+### 1️⃣ Running via CLI
 
-  | Environment Variable                     | YAML Key                   | Description                                                 |
-  |-----------------------------------------|----------------------------|-------------------------------------------------------------|
-  | `PYMOCK__SERVER__HOST`                  | `server.host`             | Overrides the host address                                 |
-  | `PYMOCK__SERVER__PORT`                  | `server.port`             | Overrides the port number                                  |
-  | `PYMOCK__SERVER__ENDPOINTS_PATH`        | `endpoints_path`          | Comma-separated list of directory paths for endpoints      |
+1. **Create** a YAML configuration file (e.g. `config.yaml`) specifying the server settings and one or more directories for endpoints.
+2. **Launch** the server using the CLI:
 
-  **Examples**:
-  ```bash
-  export PYMOCK__SERVER__HOST="0.0.0.0"
-  export PYMOCK__SERVER__PORT="8080"
-  export PYMOCK__SERVER__ENDPOINTS_PATH="my_endpoints,custom_endpoints"
-  ```
+   ```bash
+   pymock config.yaml
+   ```
 
-  > Environment variables take first priority if set, otherwise the server falls back to the YAML config values.
+   By default, it starts on `127.0.0.1:5000` (unless otherwise configured).
 
-  ### 4.3 Endpoints Definition
+### 2️⃣ Defining Endpoints
 
-  In the directories listed under `endpoints_path`, you can define multiple **endpoint YAML files**. Each file may contain one or more endpoints, for example:
+Inside each directory listed under `endpoints_path` in your `config.yaml`, you can place multiple `.yaml` files. **Each file** may define one or more endpoints. For example:
 
-  ```yaml
-  # endpoints/get_user.yaml
+```yaml
+# endpoints/users.yaml
+path: "/users"
+method: "GET"
+scenarios:
+  - scenario_name: "Fetch Admin Users"
+    rules_data:
+      - target: "query_params"
+        prop: "admin"
+        op: "EQUALS"
+        value: "true"
+    response:
+      status: 200
+      data:
+        message: "Admin users retrieved."
+        admin_users:
+          - id: 1
+          - id: 2
+```
 
-  - path: "/users/<user_id>"
+- **`path`**: The route path (e.g., `/users`).
+- **`method`**: The HTTP method (e.g., `GET`, `POST`).
+- **`scenarios`**: A list of scenario objects, each containing:
+  - **`scenario_name`**: A readable name or identifier.
+  - **`rules_data`**: Conditions for matching this scenario. *(More below.)*
+  - **`response`**: What to return when the scenario matches. May include `status`, `data`, `headers`, or a `template`.
+
+> **Note**: If multiple scenarios match, **PyMock** returns the first matching scenario’s response.
+
+### 3️⃣ Scenarios & Rule Logic
+
+Each scenario’s `rules_data` is a **list of rules** that all must be satisfied for that scenario to match. A **rule** is defined by four main fields:
+
+- **`target`**: The part of the request you’re matching (e.g. `"body"`, `"headers"`, `"query_params"`, `"path"`, `"method"`).
+- **`prop`**: The property (or JSONPath) within that target. Examples:
+  - **Dot-notation**: `"user.name"`
+  - **JSONPath**: `"$.users[*].id"`
+  - Or `""` (empty) if you want the entire target.
+- **`op`**: The operator (e.g. `EQUALS`, `REGEX`, `ARRAY_INCLUDES`).
+- **`value`**: The value you want to compare against (could be a string, integer, regex pattern, etc.).
+
+Some commonly used operators:
+
+| Operator                    | Description                                             |
+|-----------------------------|---------------------------------------------------------|
+| `EQUALS`                    | Checks if two values are strictly the same             |
+| `REGEX`                     | Case-sensitive regex match                              |
+| `REGEX_CASE_INSENSITIVE`    | Case-insensitive regex match                           |
+| `NULL`                      | Checks if the value is `None`                          |
+| `EMPTY_ARRAY`               | Checks if the value is an empty list                   |
+| `ARRAY_INCLUDES`            | Checks if a list contains a specific element           |
+| `VALID_JSON_SCHEMA`         | Validates data against a JSON Schema definition        |
+
+### 4️⃣ Jinja2 Templates
+
+You can **render Jinja2 templates** if your scenario’s response includes a `template` key:
+
+```yaml
+path: "/hello"
+method: "GET"
+scenarios:
+  - scenario_name: "Greeting"
+    rules_data: []
+    response:
+      status: 200
+      template: "greeting.html"
+      data:
+        name: "{{ request.args.get('name', 'Guest') }}"
+```
+
+In the `greeting.html` file (placed in a `templates` directory):
+
+```html
+<html>
+  <body>
+    <h1>Hello, {{ name }}!</h1>
+  </body>
+</html>
+```
+
+When a request hits `/hello?name=Alice`, PyMock will merge the `data` dictionary into the Jinja2 template context, rendering `"Hello, Alice!"`.
+
+---
+
+## Configuration
+
+A basic `config.yaml` might look like:
+
+```yaml
+server:
+  host: "127.0.0.1"
+  port: 5000
+
+endpoints_path:
+  - "endpoints/"
+  - "custom_endpoints/"
+```
+
+- **`server.host`**: IP or hostname where Flask listens.
+- **`server.port`**: Port number.
+- **`endpoints_path`**: List of directories containing `.yaml` endpoint definitions.
+
+### Environment Variable Overrides
+
+PyMock also supports environment variables to override certain config fields:
+
+| Environment Variable              | Overwrites                |
+|----------------------------------|---------------------------|
+| `PYMOCK__SERVER__HOST`           | `server.host`             |
+| `PYMOCK__SERVER__PORT`           | `server.port`             |
+| `PYMOCK__SERVER__ENDPOINTS_PATH` | `endpoints_path` (comma-separated) |
+
+Example:
+
+```bash
+export PYMOCK__SERVER__HOST="0.0.0.0"
+export PYMOCK__SERVER__PORT="8080"
+pymock config.yaml
+```
+
+Now it starts on `0.0.0.0:8080`.
+
+---
+
+## Advanced Usage
+
+### Caching
+
+PyMock includes **Flask-Caching**. By default, each scenario’s response is cached for 60 seconds based on request path + query parameters. This can be configured in `cache.py` or overridden by customizing the Flask config.
+
+### Docker Support
+
+Build and run PyMock in Docker:
+
+```bash
+# 1) Build the image (from the Dockerfile)
+docker build -t pymock .
+# 2) Run the container
+docker run --rm -p 5000:5000 pymock
+```
+
+To customize or mount a different `config.yaml`, you can do:
+
+```bash
+docker run -d -p 5000:5000 \
+  -v $(pwd)/my_config.yaml:/app/config.yaml \
+  --name pymock_server \
+  pymock
+```
+
+---
+
+## Usage Examples
+
+### Mocking an API
+
+Suppose you need a quick mock for an external service:
+
+1. In `endpoints/service.yaml`:
+
+    ```yaml
+    path: "/api/v1/data"
     method: "GET"
-    rules:
-      - conditions:
-          - target: "route_params"
-            property: "user_id"
-            operator: "equals"
-            value: "123"
+    scenarios:
+      - scenario_name: "All Data"
+        rules_data: []
         response:
           status: 200
           data:
-            message: "User 123 found!"
-      - conditions:
-          - target: "route_params"
-            property: "user_id"
-            operator: "equals"
-            value: "456"
-        response:
-          status: 200
-          data:
-            message: "User 456 found!"
-  ```
+            items:
+              - id: 1
+                name: "Sample 1"
+              - id: 2
+                name: "Sample 2"
+    ```
 
-  **Key fields** in each endpoint definition:
+2. Start PyMock:
+    ```bash
+    pymock config.yaml
+    ```
 
-  - `path`: The route path (supports Flask-style path parameters like `<user_id>`).
-  - `method`: HTTP method (e.g. GET, POST, PUT, etc.).
-  - `rules`: A list of rule objects. Each rule has:
-    - `conditions`: An array of conditions that must all be satisfied for the rule to match.
-    - `response`: What to return if the rule matches (`status`, `data`, optional `template`).
+3. Send a request:
+    ```bash
+    curl http://127.0.0.1:5000/api/v1/data
+    # => returns the JSON in the scenario's 'data' field
+    ```
 
-  > If an endpoint also specifies `template: "my_template.html"`, then the server will render the Jinja2 template with the `data` variables passed in.
+### Conditional Responses with Rules
 
-  ---
+If you want to return a **different** response based on a query parameter:
 
-  ## 5. Usage
+```yaml
+path: "/api/v1/items"
+method: "GET"
+scenarios:
+  - scenario_name: "Has Query Param"
+    rules_data:
+      - target: "query_params"
+        prop: "type"
+        op: "EQUALS"
+        value: "special"
+    response:
+      status: 200
+      data:
+        message: "Found special items!"
 
-  ### 5.1 Running the Server
+  - scenario_name: "Default"
+    rules_data: []
+    response:
+      status: 404
+      data:
+        error: "Not found"
+```
 
-  1. **Ensure** you have a valid `config.yaml` in the root folder (or set up environment variables).
-  2. **Run** `app.py`:
+- If `?type=special`, we get `message: Found special items!`
+- Otherwise, we get a `404` response with `"Not found"`.
 
-      ```bash
-      python app.py
-      ```
+---
 
-     The server will bind to the configured host and port, logging requests and rule evaluations.
+## 📖 License
 
-  ### 5.2 Example Usage
+PyMock is distributed under the **MIT License**.
+See the [LICENSE](LICENSE) file for details.
 
-  **Local Testing**:
+---
 
-  ```bash
-  curl http://127.0.0.1:5000/users/123
-  # => { "message": "User 123 found!" }
+## 📬 Contact
 
-  curl http://127.0.0.1:5000/users/456
-  # => { "message": "User 456 found!" }
-
-  curl http://127.0.0.1:5000/users/999
-  # => 404 { "error": "No matching rule found" }
-  ```
-
-  ---
-
-  ## 6. Rules Engine
-
-  The rules engine checks **conditions** under an endpoint in order. Each rule has an array of conditions. All conditions in a rule must be met (logical AND) for that rule to match. The first matching rule returns its response.
-
-  ### 6.1 Targets
-
-  Each condition specifies a **target**, which tells the engine **where to look**:
-
-  | Target           | Meaning                                                           |
-  |------------------|-------------------------------------------------------------------|
-  | `body`           | JSON body of the request                                         |
-  | `params`         | Query parameters (i.e., `request.args`)                           |
-  | `headers`        | HTTP request headers                                             |
-  | `cookies`        | Cookies sent by the client                                       |
-  | `method`         | The HTTP method (GET, POST, etc.)                                |
-  | `path`           | The URL path (e.g., `/users/123`)                                |
-  | `route_params`   | Values captured from dynamic routes (e.g., `<user_id>`)          |
-  | `number`         | Special handling if you expect numeric data in query/body (stub) |
-  | `global_variable`| Custom logic to retrieve a global variable (not fully implemented)|
-  | `data_bucket`    | Custom logic to retrieve data from an external bucket or DB (stub)|
-
-  ### 6.2 Operators
-
-  Each condition also uses an **operator** for comparison. Supported operators include:
-
-  - `equals`
-  - `regex`
-  - `regex(i)`
-  - `null`
-  - `empty array`
-  - `array includes`
-  - `valid JSON schema`
-
-  For example:
-
-  ```yaml
-  - target: "headers"
-    property: "X-Api-Key"
-    operator: "equals"
-    value: "secret"
-  ```
-
-  **Invert Matching**
-  You can optionally include `"invert": true` in a condition to negate the match result (e.g., "not equals").
-
-  ---
-
-  ## 7. Templates
-
-  If an endpoint rule specifies a `template`, the system will render that template using Jinja2, passing `data` as template variables.
-
-  1. **Folder**: Templates are searched in the `templates/` directory (configurable in `FileSystemLoader`).
-  2. **Usage**:
-     ```yaml
-     - path: "/about"
-       method: "GET"
-       template: "about.html"
-       rules:
-         - conditions: []  # or some conditions
-           response:
-             status: 200
-             data:
-               title: "About Us"
-               description: "This is a simple static page."
-     ```
-
-  In `about.html`, you can reference `{{ title }}` and `{{ description }}`.
-
-  ---
-
-  ## 8. Caching
-
-  This mock server uses a simple **in-memory cache** (`CACHE`) keyed by `<path>-<query_string>`. Once a request is matched, subsequent identical requests will return the same response data from the cache. This is helpful for repeated calls to the same route/query.
-
-  **Note**: The cache is purely in-memory and **not** thread-safe for heavy production usage. If you need advanced caching or concurrency, consider an external store (e.g., Redis).
-
-  ---
-
-  ## 9. Contributing
-
-  1. Fork or clone the repo.
-  2. Create a feature branch.
-  3. Submit a pull request describing your changes.
-
-  Suggestions and contributions are always welcome!
-
-  ---
-
-  ## 10. License
-
-  This project is licensed under the [MIT License](LICENSE). Feel free to modify and adapt it to your needs.
-
-  ---
-
-  **Questions or feedback?** Open an issue or create a discussion on the repository. Enjoy your mock server!
+- **Issues & Questions**: Open a GitHub issue at [PyMock Issues](https://github.com/qualitycoe/pymock/issues).
+- **Email**: For direct inquiries, contact `qualitycoe@outlook.com`.

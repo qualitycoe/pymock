@@ -65,8 +65,8 @@ def test_config_loader_invalid_file():
 
 def test_env_overrides(temp_config, monkeypatch):
     """Test environment variable overrides."""
-    monkeypatch.setenv("mytool__SERVER__HOST", "test.host")
-    monkeypatch.setenv("mytool__SERVER__PORT", "9090")
+    monkeypatch.setenv("PYMOCK__SERVER__HOST", "test.host")
+    monkeypatch.setenv("PYMOCK__SERVER__PORT", "9090")
     config = get_config(temp_config)
     assert config["server"]["host"] == "test.host"
     assert config["server"]["port"] == 9090
@@ -82,7 +82,7 @@ def test_invalid_yaml(temp_config):
 
 def test_invalid_port_env(temp_config, monkeypatch):
     """Test invalid port environment variable."""
-    monkeypatch.setenv("mytool__SERVER__PORT", "invalid")
+    monkeypatch.setenv("PYMOCK__SERVER__PORT", "invalid")
     config = get_config(temp_config)
     assert config["server"]["port"] == 8080  # Should keep YAML value
 

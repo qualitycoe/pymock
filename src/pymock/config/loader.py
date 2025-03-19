@@ -86,16 +86,16 @@ class ConfigLoader:
             config["server"] = {}
 
         # Apply env overrides, overwriting YAML values if present
-        if env_host := os.environ.get("mytool__SERVER__HOST"):
+        if env_host := os.environ.get("PYMOCK__SERVER__HOST"):
             config["server"]["host"] = env_host
 
-        if env_port := os.environ.get("mytool__SERVER__PORT"):
+        if env_port := os.environ.get("PYMOCK__SERVER__PORT"):
             try:
                 config["server"]["port"] = int(env_port)
             except ValueError:
                 logger.warning("Invalid port value '%s' from env, ignoring", env_port)
 
-        if env_paths := os.environ.get("mytool__SERVER__ENDPOINTS_PATH"):
+        if env_paths := os.environ.get("PYMOCK__SERVER__ENDPOINTS_PATH"):
             config["endpoints_path"] = [p.strip() for p in env_paths.split(",")]
 
         return config
