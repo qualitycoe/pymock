@@ -111,7 +111,7 @@ method: "GET"
 scenarios:
   - scenario_name: "Fetch Admin Users"
     rules:
-      - target: "query_params"
+      - target: "params"
         prop: "admin"
         op: "EQUALS"
         value: "true"
@@ -137,7 +137,7 @@ scenarios:
 
 Each scenario’s `rules` is a **list of rules** that all must be satisfied for that scenario to match. A **rule** is defined by four main fields:
 
-- **`target`**: The part of the request you’re matching (e.g. `"body"`, `"headers"`, `"query_params"`, `"path"`, `"method"`).
+- **`target`**: The part of the request you’re matching (e.g. `"body"`, `"headers"`, `"params"`, `"path"`, `"method"`).
 - **`prop`**: The property (or JSONPath) within that target. Examples:
   - **Dot-notation**: `"user.name"`
   - **JSONPath**: `"$.users[*].id"`
@@ -301,7 +301,7 @@ method: "GET"
 scenarios:
   - scenario_name: "Has Query Param"
     rules:
-      - target: "query_params"
+      - target: "params"
         prop: "type"
         op: "EQUALS"
         value: "special"

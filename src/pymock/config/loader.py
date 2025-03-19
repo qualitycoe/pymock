@@ -95,6 +95,10 @@ class ConfigLoader:
             except ValueError:
                 logger.warning("Invalid port value '%s' from env, ignoring", env_port)
 
+        if env_debug := os.environ.get("PYMOCK__DEBUG"):
+            # Convert string to bool
+            config["debug"] = env_debug.lower() == "true"
+
         if env_paths := os.environ.get("PYMOCK__SERVER__ENDPOINTS_PATH"):
             config["endpoints_path"] = [p.strip() for p in env_paths.split(",")]
 

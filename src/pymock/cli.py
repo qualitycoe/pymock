@@ -4,17 +4,14 @@ import sys
 
 from pymock.app import create_app
 from pymock.config.loader import get_config
+from pymock.logging_config import setup_logging
 
 
-def run_server(config_path: str, clear_cache: bool = False) -> None:  # noqa: FBT001, FBT002
-    """
-    Runs the PyMock server with the specified configuration file.
-
-    Args:
-        config_path: Path to the YAML configuration file.
-        clear_cache: If True, clears all caches before starting the server.
-    """
+def run_server(config_path: str) -> None:
     config = get_config(config_path)
+    debug_mode = config.get("debug", False)  # <-- read the 'debug' key
+    setup_logging(debug=debug_mode)
+
     endpoints_config = config.get("endpoints", [])
     server_config = config.get("server", {})
 
@@ -22,8 +19,7 @@ def run_server(config_path: str, clear_cache: bool = False) -> None:  # noqa: FB
     port = server_config.get("port", 5000)
 
     app = create_app(endpoints_config)
-
-    app.run(host=host, port=port, debug=True, threaded=True)
+    app.run(host=host, port=port, debug=debug_mode, threaded=True)
 
 
 def main() -> None:
@@ -50,7 +46,7 @@ def main() -> None:
 
     args = parser.parse_args()
     try:
-        run_server(args.config, clear_cache=args.clear_cache)
+        run_server(args.config)
     except Exception as e:
         print(f"Error: {e}", file=sys.stderr)  # noqa: T201
         sys.exit(1)

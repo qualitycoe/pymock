@@ -1,5 +1,6 @@
 # src/pymock/server/create_endpoint_blueprint.py
 
+import logging
 from collections.abc import Callable
 
 from flask import Blueprint, Response, jsonify, make_response, request
@@ -10,6 +11,8 @@ from pymock.server.cache import cache
 from pymock.server.request import Request
 from pymock.server.templates.handler import TemplateHandler
 
+logger = logging.getLogger(__name__)
+
 
 def create_endpoint_blueprint(endpoints_config: list[dict]) -> Blueprint:
     """
@@ -18,13 +21,16 @@ def create_endpoint_blueprint(endpoints_config: list[dict]) -> Blueprint:
       - Inline Jinja2 expressions in the 'data' portion of responses
       - Caching with a custom key function
     """
+
+    logger.debug("Loading endpoints config: %s", endpoints_config)
+
     mock_bp = Blueprint("mock_blueprint", __name__)
     jinja_env = Environment(autoescape=True)  # For inline `{{}}` expressions
 
     def _make_cache_key(*args, **kwargs) -> str:
         """Generate cache key based on request path & query params."""
-        query_params = "&".join(f"{k}={v}" for k, v in sorted(request.args.items()))
-        return f"{request.path}?{query_params}"
+        params = "&".join(f"{k}={v}" for k, v in sorted(request.args.items()))
+        return f"{request.path}?{params}"
 
     def _render_data(data: dict) -> dict:
         """
@@ -65,7 +71,9 @@ def create_endpoint_blueprint(endpoints_config: list[dict]) -> Blueprint:
             request_data = request_obj.to_dict()
 
             for scenario in scenarios:
+                logger.debug("Checking scenario: %s", scenario.scenario_name)
                 if scenario.evaluate(request_data):
+                    logger.debug("Scenario matched: %s", scenario.scenario_name)
                     scenario_resp = scenario.get_response()
                     status_code = scenario_resp.get("status", 200)
                     data = scenario_resp.get("data", {})
