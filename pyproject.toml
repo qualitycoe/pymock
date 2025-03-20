@@ -32,6 +32,7 @@ dependencies = [
   "pytest",
   "types-PyYAML",
   "ruleenginex @ git+https://github.com/qualitycoe/ruleenginex.git@main#egg=ruleenginex",
+  "Faker",
 ]
 
 [project.urls]
